@@ -66,7 +66,6 @@ paths:
         description: 'Sort order, you can specific overall as asc or desc, and if           you use multiple columns you can comma seperate this such as two  columns: vendor,product you could do asc,desc if you want. The Default is asc.'
         schema:
           type: string
-          enum: [asc, desc]
         required: false
       - name: only_date
         in: query
@@ -85,7 +84,7 @@ paths:
         required: false
       - name: filter
         in: query
-        description: 'This is very powerful, it follows Pandas query ability, you           can do things like ''vendor=microsoft''. For more details\: https://queirozf.com/entries/pandas-query-examples-sql-like-syntax-queries-in-dataframes,*** add more examples.'
+        description: 'This is very powerful, it follows Pandas query ability, you           can do things like: vendor==''microsoft'' and product=''internet explorer'' and intel>''2020''. Please note: You must use == for equality test.  If you use the single equal =, this will try set the value, which is not allowed in a filter. For more details\: https://queirozf.com/entries/pandas-query-examples-sql-like-syntax-queries-in-dataframes,*** add more examples.'
         schema:
           type: string
         required: false
@@ -112,6 +111,10 @@ paths:
           - 'json:values'
         required: false
       responses:
+        '4XX':
+          description: Unexpected error.
+        '5XX':
+          description: Unexpected error.
         200:
           description: Processing was good
           content: # Response body
