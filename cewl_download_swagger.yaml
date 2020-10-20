@@ -1,0 +1,135 @@
+openapi: 3.0.1
+info:
+  title: CTCI CEWL API
+  description: This is the CEWL Download API.   You can find out more about     at
+    [http://ctci.ai](http://ctci.ai).      For this sample, you can use the api key
+    `cewlness` to test the authorization     filters.
+  termsOfService: http://ctci.ai/terms/
+  contact:
+    email: sales@ctci.ai
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: "0.5"
+externalDocs:
+  description: Find out more about CEWL
+  url: http://ctci.ai
+servers:
+- url: https://cewl-download.azurewebsites.net/api/v1
+security:
+- APIKeyQueryParam: []
+tags:
+- name: CEWL
+  description: CEWL Download API
+  externalDocs:
+    description: Find out more
+    url: https://ctci.ai/api
+paths:
+  /cve/cewl_download:
+    get:
+      tags:
+      - CEWL Download
+      summary: Download CEWL through the API
+      operationId: CEWL_Download
+      description: <h4>This downloads CEWL!</h4> <br/> Only the x-api-key needs to be set as the query string parameter x-api-key. All other query string parameters are OPTIONAL. The other options cover different types of searching - keyword search, a filter query search, sorting and other utility-like functions.
+      parameters:
+      - name: CVE
+        in: query
+        description: 'This will do a search for a specific CVE within CEWL, for example, search for CVE-2019-0708, CVE=CVE-2019-0708'
+        schema:
+          type: string
+        required: false
+      - name: keyword_search
+        in: query
+        description: This searches all columns and finds all rows where it contains
+          the keyword search.
+        schema:
+          type: string
+      - name: ignore_possible_encoding_columns
+        in: query
+        description: There are some columns that can have different encodings such
+          as Chinese, Russian and Japanese, this will ignore those columns. Use 'on'
+          and 'off' to use this. The Default is off
+        schema:
+          type: string
+          enum: [off, on]
+        required: false
+      - name: sort_by
+        in: query
+        description: Sort columns, comma seperated such as 'honeypot,intel'
+        schema:
+          type: string
+          default: null
+        required: false
+      - name: sort_order
+        in: query
+        description: 'Sort order, you can specific overall as asc or desc, and if           you use multiple columns you can comma seperate this such as two  columns: vendor,product you could do asc,desc if you want. The Default is asc.'
+        schema:
+          type: string
+          enum: [asc, desc]
+        required: false
+      - name: only_date
+        in: query
+        description: This if you only want the date and not date with '00:00:00' in
+          your time columns. Use off or on to toggle this. The Default is on.
+        schema:
+          type: string
+          enum: [off, on]
+        required: false
+      - name: all_lower
+        in: query
+        description: This makes all searches you do based on lower case values except for the CVE column. Use 'off' or 'on' to toggle this. The Default is on. 
+        schema:
+          type: string
+          enum: [off, on]
+        required: false
+      - name: filter
+        in: query
+        description: 'This is very powerful, it follows Pandas query ability, you           can do things like ''vendor=microsoft''. For more details\: https://queirozf.com/entries/pandas-query-examples-sql-like-syntax-queries-in-dataframes,*** add more examples.'
+        schema:
+          type: string
+        required: false
+      - name: output_columns
+        in: query
+        description: 'Allows you to only output the list of columns you are after.           The columns need to be comma separated, for example ''intel,vendor'' '
+        schema:
+          type: string
+        required: false
+      - name: output_format
+        in: query
+        description: 'The different output formats. Note: json, is json:record See Pandas documentation for more details ***'
+        schema:
+          type: string
+          enum: 
+          - csv 
+          - json
+          - web
+          - 'json:split'
+          - 'json:records'
+          - 'json:index'
+          - 'json:table'
+          - 'json:columns'
+          - 'json:values'
+        required: false
+      responses:
+        200:
+          description: Processing was good
+          content: # Response body
+            text/csv:
+              schema:
+                type: string
+                example: TBD
+            application/json:
+              schema:
+                type: object
+                example: "{ 'CVE': 'CVE-2020-XXXXX'}"
+components:
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      name: x-api-key
+      in: header
+    APIKeyQueryParam:
+      type: apiKey
+      name: x-api-key
+      in: query
