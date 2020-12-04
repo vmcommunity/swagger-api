@@ -1,0 +1,280 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CTCI CEWL DOWNLOAD API",
+    "description": "![CTCI + CEWL logo](https://raw.githubusercontent.com/vmcommunity/marketing/main/CEWL/cewl_new_plus_ctci_v2.png)\n<br/>This is the CEWL Download API.   You can find out more about     at\n[http://ctci.ai](http://ctci.ai).      For this sample, you can use the api key\n`no more secrets` to test the API this will return the 2020 NSA Chinese State Actors CVE Exploit List ([NSA CSA Link](https://media.defense.gov/2020/Oct/20/2002519884/-1/-1/0/CSA_CHINESE_EXPLOIT_VULNERABILITIES_UOO179811.PDF)).\n",
+    "termsOfService": "http://ctci.ai/terms/",
+    "contact": {
+      "email": "sales@ctci.ai"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "0.7"
+  },
+  "externalDocs": {
+    "description": "Find out more about CEWL",
+    "url": "http://ctci.ai"
+  },
+  "servers": [
+    {
+      "url": "https://cewl-download.azurewebsites.net/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "APIKeyQueryParam": [],
+      "APIKeyHeader": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "CEWL",
+      "description": "CEWL Download API",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://ctci.ai/api"
+      }
+    }
+  ],
+  "paths": {
+    "/cve/cewl_download": {
+      "get": {
+        "tags": [
+          "CEWL Download"
+        ],
+        "summary": "Download CEWL through the API",
+        "operationId": "CEWL_Download",
+        "description": "<h4>This downloads CEWL!</h4> <br/> Only the x-api-key needs to be set as the query string parameter x-api-key. All other query string parameters are OPTIONAL. The other options cover different types of searching - keyword search, a filter query search, sorting and other utility-like functions.\n\n \n  \n  | Column Name | Column Details |\n  | ------- | --------|\n  | CVE   | The office CVE from Mitre / NVD   |\n  | vendor| The vendor that the CVE pertains to, for example, Microsoft|\n  | product| The vendor that the CVE pertains to, for example, Windows|\n  | vulnerability_type| This is type of exploit used|\n  | description| The description of the vulnerability|\n  | date_added| The date the CVE was added to CEWL, this column is functional after 1st of November, 2020|\n  | date_discovered| The date the vulnerability was discovered, for secrecy this might be offset but still valuable|\n  | date_patched | The date there is a patch available for this CVE|\n  | advisory | The advisory URL for more information on the CVE|\n  | analysis_url| Detailed information at this analysis url|\n  | claimed_attribution| If any groups have claimed or have found to have done this exploit|\n  | malware| malware related to this CVE|\n  | honeypot| First time of honeypot hit|\n  | intel| First time of intel hit|\n  | campaign| Any campaign name associated to this vulnerability|\n  \n  \n",
+        "parameters": [
+          {
+            "name": "CVE",
+            "in": "query",
+            "description": "This will do a search for a specific CVE within CEWL, for example, search for the RDP Bluekeep vulnerability: CVE-2019-0708",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "keyword_search",
+            "in": "query",
+            "description": "This searches all columns and finds all rows where it contains the keyword search.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "empty": {
+                "value": "",
+                "summary": "--"
+              },
+              "remote_code": {
+                "value": "remote code",
+                "summary": "Mention of the word \"remote code\""
+              }
+            }
+          },
+          {
+            "name": "ignore_possible_encoding_columns",
+            "in": "query",
+            "description": "There are some columns that can have different encodings such as Chinese, Russian and Japanese, this will ignore those columns. Use 'on' and 'off' to use this. The Default is off.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "off",
+                "on"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "Sort columns, comma seperated such as 'honeypot,intel'",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "description": "Sort order, you can specific overall as asc or desc, and if           you use multiple columns you can comma seperate this such as two  columns: vendor,product you could do asc,desc if you want. The Default is asc.",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "only_date",
+            "in": "query",
+            "description": "This if you only want the date and not date with '00:00:00' in your time columns. Use off or on to toggle this. The Default is on.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "off",
+                "on"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "all_lower",
+            "in": "query",
+            "description": "This makes all searches you do based on lower case values except for the CVE column. Use 'off' or 'on' to toggle this. The Default is on.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "off",
+                "on"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "This is very powerful, it follows the Python Pandas dataframe query ability [https://www.geeksforgeeks.org/python-filtering-data-with-pandas-query-method/]. The difference is we have made it easier to create filters, you don\\'t have to do == for equals test and for conditions you don't have to use quotes for words that don't have spaces in them. See examples dropdown for some good examples.",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "examples": {
+              "empty": {
+                "value": "",
+                "summary": "--"
+              },
+              "microsoft": {
+                "value": "vendor=microsoft",
+                "summary": "Filter by Microsoft"
+              },
+              "microsoft_ie": {
+                "value": "vendor=microsoft and product='internet explorer'",
+                "summary": "Filter by Microsoft IE"
+              },
+              "cisco": {
+                "value": "vendor=cisco",
+                "summary": "Filter by Cisco"
+              },
+              "recent": {
+                "value": "intel>'2020'",
+                "summary": "Recent Intel"
+              }
+            }
+          },
+          {
+            "name": "raw_filter",
+            "in": "query",
+            "description": "This allows the filter to not replace = with ==, remove multiple spaces and always use the single quote \\' for equals. The format for this is from Pandas where query format.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "off",
+                "on"
+              ]
+            }
+          },
+          {
+            "name": "file_download",
+            "in": "query",
+            "description": "This flag is set to on by default. It sets the mimetype to be able to be downloaded as a separate file from the web. If your client code is having troubles with the content disposition mimetype then set this to off.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "off",
+                "on"
+              ]
+            }
+          },
+          {
+            "name": "output_columns",
+            "in": "query",
+            "description": "Allows you to only output the list of columns you are after.           The columns need to be comma separated, for example 'intel,vendor' ",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "output_format",
+            "in": "query",
+            "description": "The different output formats. Note: json, is json:record format from Python Pandas. For understanding more json formats see Python Pandas documentation for more details.  [https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html]",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "csv",
+                "json",
+                "web",
+                "json:split",
+                "json:records",
+                "json:index",
+                "json:table",
+                "json:columns",
+                "json:values"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processing was good",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "example": "CVE,vendor,product,vulnerability_type,date_added,date_discovered,date_patched,advisory,honeypot,intel,campaign\nCVE-2020-8515,Draytek,Vigor 2960,,,2019-12-04,2019-12-04,https://www.skullarmy.net/2020/01/draytek-unauthenticated-rce-in-draytek.html,,2020-02-01\n"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "CVE": "CVE-2020-5902",
+                    "vendor": "bigip",
+                    "product": "f5",
+                    "vulnerability_type": "remote code execution",
+                    "description": "the traffic management user interface (tmui), also referred to as the configuration utility, has a remote code execution (rce) vulnerability",
+                    "date_added": "",
+                    "date_discovered": 1593475200000,
+                    "date_patched": 1595376000000,
+                    "advisory": "https://support.f5.com/csp/article/k52145254",
+                    "analysis_url": "",
+                    "claimed_attribution": "",
+                    "malware": "",
+                    "honeypot": 1593993600000,
+                    "intel": 1593993600000,
+                    "campaign": ""
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Unexpected error. Usually a mistake from the client-side."
+          },
+          "5XX": {
+            "description": "Unexpected error. Server didn't understand your request."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      },
+      "APIKeyQueryParam": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "query"
+      }
+    }
+  }
+}
