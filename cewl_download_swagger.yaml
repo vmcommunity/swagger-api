@@ -212,7 +212,7 @@ paths:
         5XX:
           description: Unexpected error. Server didn't understand your request.
   
-  /api/v1/user/:
+  /api/v1/user:
     get:
         tags:
           - Users
@@ -322,7 +322,7 @@ paths:
             description: Unexpected error. Server didn't understand your request.
             
 
-  /api/v1/company/:
+  /api/v1/company:
     get:
         tags:
           - Company
@@ -433,7 +433,7 @@ paths:
           5XX:
             description: Unexpected error. Server didn't understand your request.
             
-  /api/v1/email_domain/:
+  /api/v1/email_domain:
     get:
         tags:
           - Email Domain
@@ -496,8 +496,8 @@ paths:
 
     put:
         tags:
-          - Company
-        summary: Update a company in the companies you manage
+          - Email Domain
+        summary: Update an email domain in the companies you manage
         operationId: Update_email_domain
         description: |
           <h4>Update an email_domain</h4>
@@ -545,10 +545,10 @@ paths:
             description: Unexpected error. Server didn't understand your request.    
     
 
-  /api/v1/token/:
+  /api/v1/token:
     get:
         tags:
-          - Token store
+          - Token Store
         summary: Get all API Tokens for the companies you manage
         operationId: Get_tokens
         description: |
@@ -572,7 +572,7 @@ paths:
             
     post:
         tags:
-          - Token store
+          - Token Store
         summary: Create a Token in the companies you manage
         operationId: Create_token
         description: |
@@ -594,18 +594,18 @@ paths:
           5XX:
             description: Unexpected error. Server didn't understand your request.
   
-  /api/v1/token/{token_id}:    
+  /api/v1/token/{token_id}:  
     parameters:
-    - name: token_id
-      in: path
-      description: id of the token
-      required: true
-      schema:
-        type: array
-        items:
-          type: string  
-      style: simple
-
+      - name: token_id
+        in: path
+        description: id of the token
+        required: true
+        schema:
+          type: array
+          items:
+            type: string  
+        style: simple
+        
     put:
         tags:
           - Token Store
@@ -652,17 +652,17 @@ paths:
           4XX:
             description: Unexpected error. Usually a mistake from the client-side.
           5XX:
-            description: Unexpected error. Server didn't understand your request.    
-            
+            description: Unexpected error. Server didn't understand your request.  
+  
 
-  /api/v1/notification_group/:
+  /api/v1/notification_group:
     get:
         tags:
           - Notification Group
         summary: Get all Notification Groups for the companies you manage
         operationId: Get_notification_groups
         description: |
-          <h4>Returns Tokens</h4>
+          <h4>Returns Notification Groups</h4>
         
         responses:
           '200':
@@ -704,7 +704,7 @@ paths:
           5XX:
             description: Unexpected error. Server didn't understand your request.
   
-  /api/v1/token/{notification_group_id}:    
+  /api/v1/notification_group/{notification_group_id}:    
     parameters:
     - name: notification_group_id
       in: path
@@ -740,6 +740,7 @@ paths:
           5XX:
             description: Unexpected error. Server didn't understand your request.
   
+  
     delete:
         tags:
           - Notification Group
@@ -762,7 +763,558 @@ paths:
           4XX:
             description: Unexpected error. Usually a mistake from the client-side.
           5XX:
+            description: Unexpected error. Server didn't understand your request.
 
+  /api/v1/notification_filter:
+    get:
+        tags:
+          - Notification Filter
+        summary: Get all Notification Filters for the companies you manage
+        operationId: Get_notification_filters
+        description: |
+          <h4>Returns Notification Filters</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification Filter
+        summary: Create a Notification Filter in the companies you manage
+        operationId: Create_notification_filter
+        description: |
+          <h4>Create a Notification Filter</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification_filter/{notification_filter_id}:    
+    parameters:
+    - name: notification_filter_id
+      in: path
+      description: id of the notification_filter
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Notification Filter
+        summary: Update a Notification Filter in the companies you manage
+        operationId: Update_notification_filter
+        description: |
+          <h4>Update a Notification Filter</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+    delete:
+        tags:
+          - Notification Filter
+        summary: Delete a Notification Filter from one of the companies you manage
+        operationId: Delete_notificaiton_filter
+        description: |
+          <h4>Delete a Notification Filter</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+  /api/v1/notification_delivery:
+    get:
+        tags:
+          - Notification Delivery
+        summary: Get all Notification Deliveries for the companies you manage
+        operationId: Get_notification_deliveries
+        description: |
+          <h4>Returns Notification Deliveries</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification Delivery
+        summary: Create a Notification Delivery in the companies you manage
+        operationId: Create_notification_delivery
+        description: |
+          <h4>Create a Notification Delivery</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification_delivery/{notification_delivery_id}:    
+    parameters:
+    - name: notification_delivery_id
+      in: path
+      description: id of the notification_delivery
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Notification Delivery
+        summary: Update a Notification Delivery in the companies you manage
+        operationId: Update_notification_delivery
+        description: |
+          <h4>Update a Notification Delivery</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+    delete:
+        tags:
+          - Notification Delivery
+        summary: Delete a Notification Delivery from one of the companies you manage
+        operationId: Delete_notificaiton_delivery
+        description: |
+          <h4>Delete a Notification Delivery</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+  /api/v1/processed:
+    get:
+        tags:
+          - Processed
+        summary: Get all the Processed CVE entries for the companies you manage
+        operationId: Get_processed
+        description: |
+          <h4>Returns Processed CVE entries</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Processed
+        summary: Create a Processed CVE in the companies you manage
+        operationId: Create_processed
+        description: |
+          <h4>Create a Processed CVE entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/processed/{processed_id}:    
+    parameters:
+    - name: processed_id
+      in: path
+      description: id of the processed entry
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Processed
+        summary: Update a Processed CVE entry in the companies you manage
+        operationId: Update_processed
+        description: |
+          <h4>Update a Processed CVE Entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+    delete:
+        tags:
+          - Processed
+        summary: Delete a Processed CVE entry from one of the companies you manage
+        operationId: Delete_processed
+        description: |
+          <h4>Delete a Processed CVE entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+            
+  /api/v1/notification:
+    get:
+        tags:
+          - Notification
+        summary: Get the latest Notification id_ref for the companies you manage
+        operationId: Get_notification
+        description: |
+          <h4>Returns the Notification id_ref</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification
+        summary: Create a Notification id_ref entry
+        operationId: Create_notification
+        description: |
+          <h4>Create a Notification id_ref entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification/{notification_id_ref}:    
+    parameters:
+    - name: notification_id_ref
+      in: path
+      description: id of the latest id_ref pointer for notifications
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Notification
+        summary: Update a Notification id_ref entry
+        operationId: Update_notification
+        description: |
+          <h4>Update a Notification id_ref entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+    delete:
+        tags:
+          - Notification
+        summary: Delete Notification id_ref entry
+        operationId: Delete_notification
+        description: |
+          <h4>Delete a Notification id_ref entry</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+  /api/v1/deal_registration:
+    get:
+        tags:
+          - Deal Registration
+        summary: Get all the deals for the companies you manage
+        operationId: Get_deal_registrations
+        description: |
+          <h4>Returns the Deal Registrations</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Deal Registration
+        summary: Create a Deal Registration
+        operationId: Create_deal_registration
+        description: |
+          <h4>Create a Deal Registration</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/deal_registration/{deal_registration_id}:    
+    parameters:
+    - name: deal_registration_id
+      in: path
+      description: id of a Deal registration
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Deal Registration
+        summary: Update a Deal Registration
+        operationId: Update_deal_registration
+        description: |
+          <h4>Update a Deal Registration</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+    delete:
+        tags:
+          - Deal Registration
+        summary: Delete a Deal Registration
+        operationId: Delete_deal_registration
+        description: |
+          <h4>Delete a Deal Registration</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
   
 components:
   securitySchemes:
