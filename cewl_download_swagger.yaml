@@ -4,8 +4,9 @@ info:
   description: |
     ![CTCI + CEWL logo](https://raw.githubusercontent.com/vmcommunity/marketing/main/CEWL/cewl_new_plus_ctci_v2.png)
     <br/>This is the CEWL Download API.   You can find out more about     at
-    [http://ctci.ai](http://ctci.ai).      For this sample, you can use the api key
-    `no more secrets` to test the API this will return the 2020 NSA Chinese State Actors CVE Exploit List ([NSA CSA Link](https://media.defense.gov/2020/Oct/20/2002519884/-1/-1/0/CSA_CHINESE_EXPLOIT_VULNERABILITIES_UOO179811.PDF)).
+    [http://ctci.ai](http://ctci.ai).      You will need to use your x-api-key or use the access_token (JWT) from a login request.  If you don't have access to CEWL you will get a snippet of the list, the 2020 NSA Chinese State Actors CVE Exploit List ([NSA CSA Link](https://media.defense.gov/2020/Oct/20/2002519884/-1/-1/0/CSA_CHINESE_EXPLOIT_VULNERABILITIES_UOO179811.PDF)). 
+    
+    For documentation about how to use this API please refer to the [API Developers Guide](https://ctci.atlassian.net/wiki/spaces/CTCIDOC/pages/399376385/API+Developers+Guide).
   termsOfService: 'https://www.ctci.ai/terms-and-conditions/'
   contact:
     email: sales@ctci.ai
@@ -28,9 +29,7 @@ security:
 tags:
   - name: CEWL
     description: CEWL Download API
-    externalDocs:
-      description: The swagger file
-      url: 'https://swagger.cewl.ctci.ai/'
+
 paths:
   /cve/cewl_download:
     get:
@@ -154,7 +153,8 @@ paths:
             content:
               application/json:
                 schema:
-                      $ref: '#/components/schemas/UserSchemaResponse'
+                  type: object
+                  $ref: '#/components/schemas/UserSchemaResponse'
                 example:
                   username: "test_user@test.com"
                   country: "Antarctica"
@@ -192,7 +192,7 @@ paths:
                 schema:
                   type: array
                   items:
-                      $ref: '#/components/schemas/UserSchema'
+                      $ref: '#/components/schemas/UserCreateSchema'
                 example:
                   username: "test_user@test.com"
                   country: "Antarctica"
@@ -354,8 +354,8 @@ paths:
   /api/v1/login:  
     post:
         tags:
-          - Users
-        summary: Login user
+          - Authentication
+        summary: Login user, you have two choices use the Token API with x-api-key header or use a traditional login -> JWT with "access_token" then make calls with this access token on subsequent calls
         operationId: Login_user
         description: |
           <h4>Login for a user, returns a JWT that can be used for subsequent authentications</h4>
@@ -396,7 +396,7 @@ paths:
   /api/v1/refresh:  
     post:
         tags:
-          - Users
+          - Authentication
         summary: Refresh Login JWT
         operationId: Refresh_JWT
         description: |
@@ -431,7 +431,7 @@ paths:
   /api/v1/register:  
     post:
         tags:
-          - Users
+          - Register User
         summary: Register a new user
         operationId: Register_user
         description: |
@@ -469,7 +469,7 @@ paths:
   /api/v1/resend_confirmation:  
     post:
         tags:
-          - Users
+          - Register User
         summary: Resend an email address confirmation
         operationId: Resend_confirmation
         description: |
@@ -544,7 +544,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CompanySchema'
+                $ref: '#/components/schemas/CompanyCreateSchema'
         
         responses:
           '200':
@@ -700,7 +700,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Email_DomainSchema'
+                $ref: '#/components/schemas/Email_DomainCreateSchema'
         
         responses:
           '200':
@@ -852,12 +852,12 @@ paths:
           <h4>Create a User</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Token_StoreSchema'
+                $ref: '#/components/schemas/Token_StoreCreateSchema'
         
         responses:
           '200':
@@ -1006,12 +1006,12 @@ paths:
           <h4>Create a Notification Group</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Notification_GroupSchema'
+                $ref: '#/components/schemas/Notification_GroupCreateSchema'
         
         responses:
           '200':
@@ -1136,12 +1136,12 @@ paths:
           <h4>Create a Notification Filter</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Notification_FilterSchema'
+                $ref: '#/components/schemas/Notification_FilterCreateSchema'
         
         responses:
           '200':
@@ -1291,12 +1291,12 @@ paths:
           <h4>Create a Notification Delivery</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Notification_DeliverySchema'
+                $ref: '#/components/schemas/Notification_DeliveryCreateSchema'
         
         responses:
           '200':
@@ -1448,12 +1448,12 @@ paths:
           <h4>Create a Processed CVE entry</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProcessedSchema'
+                $ref: '#/components/schemas/ProcessedCreateSchema'
         
         responses:
           '200':
@@ -1604,12 +1604,12 @@ paths:
           <h4>Create a Notification id_ref entry</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSchema'
+                $ref: '#/components/schemas/NotificationCreateSchema'
         
         responses:
           '200':
@@ -1759,12 +1759,12 @@ paths:
           <h4>Create a Deal Registration</h4>
           
         requestBody:
-          description: Optional description in *Markdown*
+          description: The create request
           required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Deal_RegistrationSchema'
+                $ref: '#/components/schemas/Deal_RegistrationCreateSchema'
         
         responses:
           '200':
@@ -2046,6 +2046,30 @@ components:
               type: string
             roles:
               type: string
+              
+    UserCreateSchema:
+      type: object
+      properties:
+        username:
+          type: string
+        country:
+          type: string
+        country_region:
+          type: string
+        enabled:
+          type: boolean
+        firstname:
+          type: string
+        lastname:
+          type: string
+        legit_subscription:
+          type: boolean
+        cewl_subscription:
+          type: boolean
+        nickname:
+          type: string
+        roles:
+          type: string
           
     UserSchemaResponse:
       allOf:
@@ -2128,6 +2152,76 @@ components:
               enabled:
                 type: boolean
           
+    CompanyCreateSchema:
+      type: object
+      properties:
+        company_managing_id:
+          type: integer
+        company_name:
+          type: string
+        primary_contact_email:
+          type: string
+        secondary_contact_email:
+          type: string
+        primary_contact_phone:
+          type: string
+        secondary_contact_phone:
+          type: string
+        company_address:
+          type: string
+        company_country:
+          type: string
+        company_state:
+          type: string
+        timezone:
+          type: string
+        company_postcode: 
+          type: string
+        oem:
+          type: boolean
+        oem_type:
+          type: string
+        super_admin:
+          type: boolean
+        partner:
+          type: boolean
+        partner_managing_id:
+          type: integer
+        reseller:
+          type: boolean
+        reseller_id:
+          type: integer
+        distributor:
+          type: boolean
+        distributor_id:
+          type: integer
+        trial_company:
+          type: boolean
+        trail_expiry:
+          type: string
+        subscription_cewl:
+          type: string
+        subscription_cewl_zero_trust:
+          type: string
+        subscription_flash_briefing:
+          type: string
+        subscription_legit_soar:
+          type: string
+        subscription_legit_download:
+          type: string
+        subscription_cewl_ml_features:
+          type: string
+        subscription_cewl_ml_model_tier_1:
+          type: string
+        subscription_cewl_ml_model_tier_2:
+          type: string
+        subscription_cewl_ml_model_tier_3:
+          type: string
+        subscription_cewl_ml_true_risk:
+          type: string
+        enabled:
+          type: boolean
+                
     CompanySchemaResponse:
       allOf:
       - $ref: '#/components/schemas/StandardSuccessfulResponse'
@@ -2147,6 +2241,16 @@ components:
                 type: string
               company_id:
                 type: integer
+                
+    Email_DomainCreateSchema:
+      type: object
+      properties:
+        email_domain:
+          type: string
+        note:
+          type: string
+        company_id:
+          type: integer
           
     Email_DomainSchemaResponse:
       allOf:
@@ -2177,6 +2281,24 @@ components:
               company_id:
                 type: integer
           
+    Token_StoreCreateSchema:
+      type: object
+      properties:
+        token_name:
+          type: string
+        token_note:
+          type: string
+        roles:
+          type: string
+        resource_permissions:
+          type: string
+        enabled:
+          type: boolean
+        filter_conditions:
+          type: string
+        company_id:
+          type: integer
+                
     Token_StoreSchemaResponse:
       allOf:
       - $ref: '#/components/schemas/StandardSuccessfulResponse'
@@ -2206,6 +2328,26 @@ components:
                 type: boolean
               company_id:
                 type: integer
+    
+    Notification_GroupCreateSchema:
+      type: object
+      properties:
+        notification_group_name:
+          type: string
+        notification_group_note:
+          type: string
+        notification_group_expiry:
+          type: string
+        default_notification_group_email:
+          type: string
+        default_notification_group_schedule:
+          type: string
+        default_notification_group_delivery_id:
+          type: string
+        default_notification_group_per_item:
+          type: boolean
+        company_id:
+          type: integer
           
     Notification_GroupSchemaResponse:
       allOf:
@@ -2243,7 +2385,35 @@ components:
               notification_group_id:
                 type: integer
               notification_delivery_id:
-                type: integer  
+                type: integer 
+                
+    Notification_FilterCreateSchema:
+      type: object
+      properties:
+        filter_name:
+          type: string
+        filter_note:
+          type: string
+        filter:
+          type: string
+        filter_permissions:
+          type: string
+        owner_id:
+          type: integer
+        notification_email:
+          type: string
+        notification_schedule:
+          type: string
+        notification_per_item:
+          type: boolean
+        enabled:
+          type: boolean
+        suppression:
+          type: string
+        notification_group_id:
+          type: integer
+        notification_delivery_id:
+          type: integer      
           
     Notification_FilterSchemaResponse:
       allOf:
@@ -2284,6 +2454,36 @@ components:
                 type: integer 
               company_id:
                 type: integer 
+                
+    Notification_DeliveryCreateSchema:
+      type: object
+      properties:
+        notification_delivery_roles:
+          type: string
+        notification_delivery_note:
+          type: string
+        notification_delivery_expiry:
+          type: string
+        notification_delivery_type:
+          type: string  
+        email_to:
+          type: string 
+        channel:
+          type: string
+        webhook:
+          type: string 
+        project:
+          type: string
+        issueType:
+          type: string 
+        enabled:
+          type: boolean
+        permissions:
+          type: string 
+        owner_id:
+          type: integer 
+        company_id:
+          type: integer 
           
     Notification_DeliverySchemaResponse:
       allOf:
@@ -2306,6 +2506,16 @@ components:
               date_added:
                 type: string
           
+    ProcessedCreateSchema:
+      type: object
+      properties:
+        company_id:
+          type: integer
+        cve_id:
+          type: string
+        date_added:
+          type: string
+                
     ProcessedSchemaResponse:
       allOf:
       - $ref: '#/components/schemas/StandardSuccessfulResponse'
@@ -2331,6 +2541,22 @@ components:
                 type: string 
               note:
                 type: string 
+                
+    NotificationCreateSchema:
+      type: object
+      properties:
+        latest_id_ref:
+          type: integer
+        previous_id_ref:
+          type: integer
+        current_number_enabled_cves:
+          type: integer
+        cves_not_enabled:
+          type: integer 
+        trace_data:
+          type: string 
+        note:
+          type: string 
 
     NotificationSchemaResponse:
       allOf:
@@ -2387,9 +2613,56 @@ components:
                 type: string
               company_id:
                 type: integer 
-          
+
+    Deal_RegistrationCreateSchema:
+      type: object
+      properties:
+        opportunity_name:
+          type: string
+        client_name:
+          type: string
+        company_name:
+          type: string
+        company_contact_no:
+          type: string 
+        company_contact_email:
+          type: string
+        company_contact_address:
+          type: string
+        company_contact_country:
+          type: string
+        company_contact_state:
+          type: string
+        timezone:
+          type: string 
+        company_contact_postcode:
+          type: string
+        estimated_deal_value:
+          type: string
+        description:
+          type: string
+        registration_status:
+          type: string
+        estimated_close_date:
+          type: string 
+        lead_source:
+          type: string
+        Created:
+          type: string
+        deal_approved_to:
+          type: string 
+        deal_approved_by_name:
+          type: string 
+        partner_sales_rep_id:
+          type: integer
+        internal_note:
+          type: string
+        company_id:
+          type: integer 
+                
     Deal_RegistrationSchemaResponse:
       allOf:
       - $ref: '#/components/schemas/StandardSuccessfulResponse'
       - $ref: '#/components/schemas/Deal_RegistrationSchema' 
-    
+          
+  
