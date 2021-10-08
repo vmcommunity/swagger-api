@@ -1,0 +1,2385 @@
+openapi: 3.0.3
+info:
+  title: CTCI CEWL DOWNLOAD API
+  description: |
+    ![CTCI + CEWL logo](https://raw.githubusercontent.com/vmcommunity/marketing/main/CEWL/cewl_new_plus_ctci_v2.png)
+    <br/>This is the CEWL Download API.   You can find out more about     at
+    [http://ctci.ai](http://ctci.ai).      You will need to use your x-api-key or use the access_token (JWT) from a login request.  If you don't have access to CEWL you will get a snippet of the list, the 2020 NSA Chinese State Actors CVE Exploit List ([NSA CSA Link](https://media.defense.gov/2020/Oct/20/2002519884/-1/-1/0/CSA_CHINESE_EXPLOIT_VULNERABILITIES_UOO179811.PDF)). 
+    
+    For documentation about how to use this API please refer to the [API Developers Guide](https://ctci.atlassian.net/wiki/spaces/CTCIDOC/pages/399376385/API+Developers+Guide).
+  termsOfService: 'https://www.ctci.ai/terms-and-conditions/'
+  contact:
+    email: sales@ctci.ai
+  license:
+    name: MIT License
+    url: 'https://opensource.org/licenses/MIT'
+  version: '0.8'
+externalDocs:
+  description: Find out more about CEWL
+  url: 'http://ctci.ai'
+servers:
+  - url: 'https://portal.ctci.ai'
+    description: Production
+  - url: 'https://test-portal.ctci.ai'
+    description: Test
+  
+security:
+  - APIKeyHeader: []
+  - JWTBearerAuth: []
+tags:
+  - name: CEWL
+    description: CEWL Download API
+
+paths:
+  /cve/cewl_download:
+    get:
+      tags:
+        - CEWL Download
+      summary: Download CEWL through the API
+      operationId: CEWL_Download
+      description: |
+        <h4>This downloads CEWL!</h4> <br/> Set a header value as x-api-key. All  query string parameters are OPTIONAL. The other options cover different types of searching - keyword search, a filter query search, and raw filter mode. 
+
+          | Column Name | Column Details |
+          | ------- | --------|
+          | CVE   | The official CVE from Mitre / NVD, if it starts with pCVE, iCVE, hCVE, rCVE, then these are CTCI CVEs that we have created for CVEs we are seeing that have no CVE today.  The prefix p is for provisional, i for intel found, h for honeypot found and r for research found.   |
+          | year | This is the year published for the CVE |
+          | NVD Score| This is the NVD CVSS score, when using filters be sure to use base_score as the filter variable
+          | CVE Date| This is the published date of the CVE, cve_date is what is used when called from notification filters|
+          | NVD Severity| This is the NVD CVSS Severity score assigned to the CVE, when using this is CEWL notification filters, use base_severity as the variable
+          | vendor| The vendor that the CVE pertains to, for example, Microsoft|
+          | product| The vendor that the CVE pertains to, for example, Windows|
+          | vulnerability_type| This is type of exploit used, a lot of times this is not filled in|
+          | description| The description of the vulnerability, sometimes special characters are filtered out from this description|
+          | date_added| The date the CVE was added to CEWL |
+          | date_discovered| The date the vulnerability was discovered, for secrecy this might be offset but still valuable|
+          | reference | This is usually the NVD reference, however, vulnerabilities in vendors such as Apple and Linux, it will refer to the respective location.  Always see the NVD for more links. |
+          | CVSS V2 | This is if the CVE is a CVSS V2 CVE, usually pre 2016, base_metric_v2 in variables within notification filters|
+          | CVSS V3  | This is if the CVE is a CVSS V3 CVE, usually post 2016, base_metric_v3 in variables within notification filters|
+          | id_ref | This is the identity reference for the CVE, this is monotomic increasing, so the latest CVE is the max(id_ref), this allows you to check for new CVEs by just comparing your last index value to id_ref value|
+          | Updated On| Not in operation properly today|
+          | CWE| The CVE CWE|
+          | External Note| A not related to this CVE|
+          | Enabled| Is used for internal tracking, we monitor CVEs and when it hits our level needed, then it is enabled in the list and then you see it|
+          | Processed| Processed is used for two way communication with what you have processed with your internal workflows such as Jira.|
+          | Notified| Whether we have sent out a notification or not on this CVE|
+          | Notified Date| When we sent out the notification|
+          
+          
+      parameters:
+        - name: CVE
+          in: query
+          description: 'This will do a search for a specific CVE within CEWL, for example, search for the RDP Bluekeep vulnerability: CVE-2019-0708'
+          schema:
+            type: string
+          required: false
+        - name: keyword_search
+          in: query
+          description: This searches all columns and finds all rows where it contains the keyword search, it is case insensitive.
+          schema:
+            type: string
+          examples:
+            empty:
+              value: ''
+              summary: '--'
+            remote_code:
+              value: remote code
+              summary: Mention of the word "remote code"
+        - name: raw_filter
+          in: query
+          description: 'This allows the filter to not replace = with ==, remove multiple spaces and always use the single quote \'' for equals. The format for this is from Pandas where query format.'
+          required: false
+          schema:
+            type: string
+            enum:
+              - 'off'
+              - 'on'
+      responses:
+        '200':
+          description: Processing was good
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CVESchema'
+
+                example:
+                  CVE: CVE-2020-5902
+                  year: 2020
+                  base_score: 9.8
+                  base_severity: Critical
+                  cve_date: 1593993600000
+                  vendor: bigip
+                  product: f5
+                  vulnerability_type: remote code execution
+                  description: 'the traffic management user interface (tmui), also referred to as the configuration utility, has a remote code execution (rce) vulnerability'
+                  reference: https://nvd.nist.gov/vuln/detail/CVE-2020-5902
+                  date_added: 1593475200000
+                  honeypot: 1593993600000
+                  intel: 1593993600000
+                  base_metric_v2: false
+                  base_metric_v3: true
+                  id_ref: 320
+                  updated: 1593475200000
+                  cwe: CWE-94
+                  external_note: This is an example CVE
+                  enabled: true
+                  processed: true
+                  notified: true
+                  notified_date: 1593475200000
+        4XX:
+          description: Unexpected error. Usually a mistake from the client-side.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPProblemError'
+        5XX:
+          description: Unexpected error. The server didn't understand your request.
+  
+  /api/v1/user:
+    get:
+        tags:
+          - Users
+        summary: Get all Users for the companies you manage
+        operationId: Get_Users
+        description: |
+          <h4>downloads the users</h4>
+          
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  $ref: '#/components/schemas/UserSchemaResponse'
+                example:
+                  username: "test_user@test.com"
+                  country: "Antarctica"
+                  country_region: ""
+                  enabled: true
+                  firstname: "CEWL"
+                  lastname: "Name"
+                  legit_subscription: true
+                  cewl_subscription: false
+                  nickname: "Mr CEWL"
+                  roles: "company_admin"
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Users
+        summary: Create a user in the companies you manage
+        operationId: Create_user
+        description: |
+          <h4>Create a User</h4>
+          
+        requestBody:
+            description: The Request
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                      $ref: '#/components/schemas/UserCreateSchema'
+                example:
+                  username: "test_user@test.com"
+                  country: "Antarctica"
+                  country_region: ""
+                  enabled: true
+                  firstname: "CEWL"
+                  lastname: "Name"
+                  legit_subscription: true
+                  cewl_subscription: false
+                  nickname: "Mr CEWL"
+                  roles: "company_admin"
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                      $ref: '#/components/schemas/UserSchemaResponse'
+                example:
+                  username: "test_user@test.com"
+                  country: "Antarctica"
+                  country_region: ""
+                  enabled: true
+                  firstname: "CEWL"
+                  lastname: "Name"
+                  legit_subscription: true
+                  cewl_subscription: false
+                  nickname: "Mr CEWL"
+                  roles: "company_admin"
+                    
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+                
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/user/{user_id}:  
+    get:
+        tags:
+          - Users
+        summary: Get a User based on user_id
+        operationId: Get_user_by_user_id
+        description: |
+          <h4>Get a User's details by user_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                      $ref: '#/components/schemas/UserSchemaResponse'
+                example:
+                  username: "test_user@test.com"
+                  country: "Antarctica"
+                  country_region: ""
+                  enabled: true
+                  firstname: "CEWL"
+                  lastname: "Name"
+                  legit_subscription: true
+                  cewl_subscription: false
+                  nickname: "Mr CEWL"
+                  roles: "company_admin"
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'          
+
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+    put:
+        tags:
+          - Users
+        summary: Update a user in the companies you manage
+        operationId: Update_user
+        description: |
+          <h4>Create a User</h4>
+        
+        requestBody:
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UserSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                      $ref: '#/components/schemas/UserSchemaResponse'
+                example:
+                  username: "test_user@test.com"
+                  country: "Antarctica"
+                  country_region: ""
+                  enabled: true
+                  firstname: "CEWL"
+                  lastname: "Name"
+                  legit_subscription: true
+                  cewl_subscription: false
+                  nickname: "Mr CEWL"
+                  roles: "company_admin"
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+            
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+    
+    parameters:
+    - name: user_id
+      in: path
+      description: id of the user
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+  
+            
+  /api/v1/login:  
+    post:
+        tags:
+          - Authentication
+        summary: Login user, you have two choices use the Token API with x-api-key header or use a traditional login -> JWT with "access_token" then make calls with this access token on subsequent calls
+        operationId: Login_user
+        description: |
+          <h4>Login for a user, returns a JWT that can be used for subsequent authentications</h4>
+          
+        requestBody:
+          description: Username / Password combination
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSchema'
+                
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/LoginResponseSchema'
+                example:
+                  access_token: ABDCDEFDFDSFSDFDSFDSFS
+                  id: 23
+                  firstname: Mike
+                  lastname: Jordan
+                  nickname: Mike
+                  roles: company_admin
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+                
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+  /api/v1/refresh:  
+    post:
+        tags:
+          - Authentication
+        summary: Refresh Login JWT
+        operationId: Refresh_JWT
+        description: |
+          <h4>Refresh JWT token from login</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSchema'
+                
+        responses:
+          '200':
+            description: JWT Token Refresh
+            content:
+              application/json:
+                schema:
+                  type: object
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+                
+          5XX:
+            description: Unexpected error. Server didn't understand your request.   
+            
+  /api/v1/register:  
+    post:
+        tags:
+          - Register User
+        summary: Register a new user
+        operationId: Register_user
+        description: |
+          <h4>Register a User</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSchema'
+                
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+                
+          5XX:
+            description: Unexpected error. Server didn't understand your request.  
+            
+  /api/v1/resend_confirmation:  
+    post:
+        tags:
+          - Register User
+        summary: Resend an email address confirmation
+        operationId: Resend_confirmation
+        description: |
+          <h4>Resend an email address confirmation</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSchema'
+                
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example:
+                    ID: CVE-2020-5902
+                    username: fred@awesomeness.com
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+                
+          5XX:
+            description: Unexpected error. Server didn't understand your request. 
+
+  /api/v1/company:
+    get:
+        tags:
+          - Company
+        summary: Get all Companies you manage
+        operationId: Get_Companies
+        description: |
+          <h4>Returns Companies</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CompanySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+  
+  /api/v1/company/{company_id}:    
+    parameters:
+    - name: company_id
+      in: path
+      description: id of the company
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Company
+        summary: Retrieve the Company based on company_id
+        operationId: Update_company
+        description: |
+          <h4>Retrieve a Company based on company_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CompanySchemaResponse'
+                    
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Company
+        summary: Update a company in the companies you manage
+        operationId: Get_company_by_company_id
+        description: |
+          <h4>Create a User</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanySchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CompanySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+    
+    
+
+            
+  /api/v1/email_domain:
+    get:
+        tags:
+          - Email Domain
+        summary: Get all Email domains you for the companies you manage
+        operationId: Get_email_domains
+        description: |
+          <h4>Returns Email Domains</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Email_DomainSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Email Domain
+        summary: Create an email_domain in the companies you manage
+        operationId: Create_email_domain
+        description: |
+          <h4>Create an email domain</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email_DomainCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Email_DomainSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/email_domain/{email_domain_id}:    
+    parameters:
+    - name: email_domain_id
+      in: path
+      description: id of the email_domain
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Email Domain
+        summary: Retrieve Email Domain based on email_domain_id
+        operationId: Get_email_domain_by_email_domain_id
+        description: |
+          <h4>Retrieve an Email Domain by email_domain_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Email_DomainSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Email Domain
+        summary: Update an email domain in the companies you manage
+        operationId: Update_email_domain
+        description: |
+          <h4>Update an email_domain</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email_DomainSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Email_DomainSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+    
+     
+
+  /api/v1/token:
+    get:
+        tags:
+          - Token Store
+        summary: Get all API Tokens for the companies you manage
+        operationId: Get_tokens
+        description: |
+          <h4>Returns Tokens</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token_StoreSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Token Store
+        summary: Create a Token in the companies you manage
+        operationId: Create_token
+        description: |
+          <h4>Create a User</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token_StoreCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token_StoreSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/token/{token_id}:  
+    parameters:
+      - name: token_id
+        in: path
+        description: id of the token
+        required: true
+        schema:
+          type: array
+          items:
+            type: string  
+        style: simple
+        
+    get:
+        tags:
+          - Token Store
+        summary: Retrieve Token by token_id
+        operationId: Get_token_by_token_id
+        description: |
+          <h4>Retrieve Token by token_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token_StoreSchemaResponse'
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+        
+    put:
+        tags:
+          - Token Store
+        summary: Update a token in the companies you manage
+        operationId: Update_token
+        description: |
+          <h4>Update a token</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token_StoreSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Token_StoreSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+
+  /api/v1/notification_group:
+    get:
+        tags:
+          - Notification Group
+        summary: Get all Notification Groups for the companies you manage
+        operationId: Get_notification_groups
+        description: |
+          <h4>Returns Notification Groups</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_GroupSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification Group
+        summary: Create a Notification Group in the companies you manage
+        operationId: Create_notification_group
+        description: |
+          <h4>Create a Notification Group</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_GroupCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_GroupSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification_group/{notification_group_id}:    
+    parameters:
+    - name: notification_group_id
+      in: path
+      description: id of the notification_group
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+
+    put:
+        tags:
+          - Notification Group
+        summary: Update a Notification Group in the companies you manage
+        operationId: Update_notification_group
+        description: |
+          <h4>Update a Notification Group</h4>
+        
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_GroupSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_GroupSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+
+  /api/v1/notification_filter:
+    get:
+        tags:
+          - Notification Filter
+        summary: Get all Notification Filters for the companies you manage
+        operationId: Get_notification_filters
+        description: |
+          <h4>Returns Notification Filters</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_FilterSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification Filter
+        summary: Create a Notification Filter in the companies you manage
+        operationId: Create_notification_filter
+        description: |
+          <h4>Create a Notification Filter</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_FilterCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_FilterSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification_filter/{notification_filter_id}:    
+    parameters:
+    - name: notification_filter_id
+      in: path
+      description: id of the notification_filter
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Notification Filter
+        summary: Retrieve a Notification Filter by notification_filter_id
+        operationId: Get_notification_filter_by_notification_filter_id
+        description: |
+          <h4>Retrieve Notification Filter by notification_filter_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_FilterSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Notification Filter
+        summary: Update a Notification Filter in the companies you manage
+        operationId: Update_notification_filter
+        description: |
+          <h4>Update a Notification Filter</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_FilterSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_FilterSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+            
+  /api/v1/notification_delivery:
+    get:
+        tags:
+          - Notification Delivery
+        summary: Get all Notification Deliveries for the companies you manage
+        operationId: Get_notification_deliveries
+        description: |
+          <h4>Returns Notification Deliveries</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_DeliverySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification Delivery
+        summary: Create a Notification Delivery in the companies you manage
+        operationId: Create_notification_delivery
+        description: |
+          <h4>Create a Notification Delivery</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_DeliveryCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_DeliverySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification_delivery/{notification_delivery_id}:    
+    parameters:
+    - name: notification_delivery_id
+      in: path
+      description: id of the notification_delivery
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+      
+    get:
+        tags:
+          - Notification Delivery
+        summary: Retrieve a Notification Delivery by notification_delivery_id
+        operationId: Get_notification_delivery_by_notification_delivery_id
+        description: |
+          <h4>Retrieve a Notification Delivery by a Notification Delivery</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_DeliverySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Notification Delivery
+        summary: Update a Notification Delivery in the companies you manage
+        operationId: Update_notification_delivery
+        description: |
+          <h4>Update a Notification Delivery</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification_DeliverySchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification_DeliverySchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+            
+  /api/v1/processed:
+    get:
+        tags:
+          - Processed
+        summary: Get all the Processed CVE entries for the companies you manage
+        operationId: Get_processed
+        description: |
+          <h4>Returns Processed CVE entries</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProcessedSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Processed
+        summary: Create a Processed CVE in the companies you manage
+        operationId: Create_processed
+        description: |
+          <h4>Create a Processed CVE entry</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessedCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProcessedSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/processed/{processed_id}:    
+    parameters:
+    - name: processed_id
+      in: path
+      description: id of the processed entry
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Processed
+        summary: Retrieve a Processed CVE entry by processed_id
+        operationId: Get_processed_entry_by_processed_id
+        description: |
+          <h4>Retrieve a Processed CVE entry by processed_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProcessedSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Processed
+        summary: Update a Processed CVE entry in the companies you manage
+        operationId: Update_processed
+        description: |
+          <h4>Update a Processed CVE Entry</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessedSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProcessedSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+            
+  /api/v1/notification:
+    get:
+        tags:
+          - Notification
+        summary: Get the latest Notification id_ref for the companies you manage
+        operationId: Get_notification
+        description: |
+          <h4>Returns the Notification id_ref</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Notification
+        summary: Create a Notification id_ref entry
+        operationId: Create_notification
+        description: |
+          <h4>Create a Notification id_ref entry</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/notification/{notification_id_ref}:    
+    parameters:
+    - name: notification_id_ref
+      in: path
+      description: id of the latest id_ref pointer for notifications
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Notification
+        summary: Retrieve a Notification id_ref entry by notification_id_ref
+        operationId: Get_notification_id_ref_by_notification_id_ref
+        description: |
+          <h4>Retrieve a Notification id_ref entry by notification_id_ref</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Notification
+        summary: Update a Notification id_ref entry
+        operationId: Update_notification
+        description: |
+          <h4>Update a Notification id_ref entry</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+            
+  /api/v1/deal_registration:
+    get:
+        tags:
+          - Deal Registration
+        summary: Get all the deals for the companies you manage
+        operationId: Get_deal_registrations
+        description: |
+          <h4>Returns the Deal Registrations</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Deal_RegistrationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+            
+    post:
+        tags:
+          - Deal Registration
+        summary: Create a Deal Registration
+        operationId: Create_deal_registration
+        description: |
+          <h4>Create a Deal Registration</h4>
+          
+        requestBody:
+          description: The create request
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deal_RegistrationCreateSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Deal_RegistrationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  /api/v1/deal_registration/{deal_registration_id}:    
+    parameters:
+    - name: deal_registration_id
+      in: path
+      description: id of a Deal registration
+      required: true
+      schema:
+        type: array
+        items:
+          type: string  
+      style: simple
+      
+    get:
+        tags:
+          - Deal Registration
+        summary: Retrieve a Deal Registration by deal_registration_id
+        operationId: Get_deal_registration_by_deal_registration_id
+        description: |
+          <h4>Retrieve a Deal Registration by deal_registration_id</h4>
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Deal_RegistrationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+
+    put:
+        tags:
+          - Deal Registration
+        summary: Update a Deal Registration
+        operationId: Update_deal_registration
+        description: |
+          <h4>Update a Deal Registration</h4>
+          
+        requestBody:
+          description: Optional description in *Markdown*
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deal_RegistrationSchema'
+        
+        responses:
+          '200':
+            description: Processing was good
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Deal_RegistrationSchemaResponse'
+
+          4XX:
+            description: Unexpected error. Usually a mistake from the client-side.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HTTPProblemError'
+          5XX:
+            description: Unexpected error. Server didn't understand your request.
+  
+  
+components:
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      name: x-api-key
+      in: header
+    JWTBearerAuth:            # arbitrary name for the JWT token stuff :)
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  
+      
+  responses:
+      
+    UserError:
+        description: An error has occurred
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HTTPProblemError'
+                
+      
+  schemas:
+    # Schema for error response body
+    HTTPProblemError:
+      type: object
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
+        type:
+          type: string
+        instance:
+          type: string
+        parameter:
+          type: string
+
+      example:
+          status: 404
+          title: Title of error
+          detail: detail description of error
+          instance: request path
+          parameter: "<sometimes a parameter>"
+          
+    StandardSuccessfulResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        details:
+          type: string
+        instance:
+          type: string
+        parameter:
+          type: string
+        id:
+          type: integer
+          
+      example:
+          status: 200
+          title: The action was successful
+          detail: Description of the successful action
+          instance: request path
+          parameter: usually the object resource that was acted upon
+          id: The id of the object, if it's a create, then it returns the new id
+          data: This is usually the object after the action was performed
+          
+    CVESchema:
+        type: object
+        properties:
+          CVE:
+            type: string
+          year:
+            type: integer
+          base_score:
+            type: number
+          cve_date:
+            type: string
+          base_severity:
+            type: number
+          vendor:
+            type: string
+          product:
+            type: string
+          vulnerability_type:
+            type: string
+          description:
+            type: string
+          date_added:
+            type: string
+          reference:
+            type: string
+          base_metric_v2:
+            type: boolean
+          base_metric_v3:
+            type: boolean
+          id_ref:
+            type: number
+          updated:
+            type: string
+          cwe:
+            type: string
+          external_note:
+            type: string
+          enabled:
+            type: boolean
+          processed:
+            type: boolean
+          notified:
+            type: boolean
+          notified_date:
+            type: string
+          
+    LoginSchema:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          
+    LoginResponseSchema:
+      type: object
+      properties:
+        access_token:
+          type: string
+        id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        nickname:
+          type: string
+        roles:
+          type: string
+          
+    UserSchema:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+            country:
+              type: string
+            country_region:
+              type: string
+            enabled:
+              type: boolean
+            firstname:
+              type: string
+            lastname:
+              type: string
+            legit_subscription:
+              type: boolean
+            cewl_subscription:
+              type: boolean
+            nickname:
+              type: string
+            roles:
+              type: string
+              
+    UserCreateSchema:
+      type: object
+      properties:
+        username:
+          type: string
+        country:
+          type: string
+        country_region:
+          type: string
+        enabled:
+          type: boolean
+        firstname:
+          type: string
+        lastname:
+          type: string
+        legit_subscription:
+          type: boolean
+        cewl_subscription:
+          type: boolean
+        nickname:
+          type: string
+        roles:
+          type: string
+          
+    UserSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/UserSchema'
+      
+          
+    CompanySchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              company_managing_id:
+                type: integer
+              company_name:
+                type: string
+              primary_contact_email:
+                type: string
+              secondary_contact_email:
+                type: string
+              primary_contact_phone:
+                type: string
+              secondary_contact_phone:
+                type: string
+              company_address:
+                type: string
+              company_country:
+                type: string
+              company_state:
+                type: string
+              timezone:
+                type: string
+              company_postcode: 
+                type: string
+              oem:
+                type: boolean
+              oem_type:
+                type: string
+              super_admin:
+                type: boolean
+              partner:
+                type: boolean
+              partner_managing_id:
+                type: integer
+              reseller:
+                type: boolean
+              reseller_id:
+                type: integer
+              distributor:
+                type: boolean
+              distributor_id:
+                type: integer
+              trial_company:
+                type: boolean
+              trail_expiry:
+                type: string
+              subscription_cewl:
+                type: string
+              subscription_cewl_zero_trust:
+                type: string
+              subscription_flash_briefing:
+                type: string
+              subscription_legit_soar:
+                type: string
+              subscription_legit_download:
+                type: string
+              subscription_cewl_ml_features:
+                type: string
+              subscription_cewl_ml_model_tier_1:
+                type: string
+              subscription_cewl_ml_model_tier_2:
+                type: string
+              subscription_cewl_ml_model_tier_3:
+                type: string
+              subscription_cewl_ml_true_risk:
+                type: string
+              enabled:
+                type: boolean
+          
+    CompanyCreateSchema:
+      type: object
+      properties:
+        company_managing_id:
+          type: integer
+        company_name:
+          type: string
+        primary_contact_email:
+          type: string
+        secondary_contact_email:
+          type: string
+        primary_contact_phone:
+          type: string
+        secondary_contact_phone:
+          type: string
+        company_address:
+          type: string
+        company_country:
+          type: string
+        company_state:
+          type: string
+        timezone:
+          type: string
+        company_postcode: 
+          type: string
+        oem:
+          type: boolean
+        oem_type:
+          type: string
+        super_admin:
+          type: boolean
+        partner:
+          type: boolean
+        partner_managing_id:
+          type: integer
+        reseller:
+          type: boolean
+        reseller_id:
+          type: integer
+        distributor:
+          type: boolean
+        distributor_id:
+          type: integer
+        trial_company:
+          type: boolean
+        trail_expiry:
+          type: string
+        subscription_cewl:
+          type: string
+        subscription_cewl_zero_trust:
+          type: string
+        subscription_flash_briefing:
+          type: string
+        subscription_legit_soar:
+          type: string
+        subscription_legit_download:
+          type: string
+        subscription_cewl_ml_features:
+          type: string
+        subscription_cewl_ml_model_tier_1:
+          type: string
+        subscription_cewl_ml_model_tier_2:
+          type: string
+        subscription_cewl_ml_model_tier_3:
+          type: string
+        subscription_cewl_ml_true_risk:
+          type: string
+        enabled:
+          type: boolean
+                
+    CompanySchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/CompanySchema'
+
+    Email_DomainSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              email_domain:
+                type: string
+              note:
+                type: string
+              company_id:
+                type: integer
+                
+    Email_DomainCreateSchema:
+      type: object
+      properties:
+        email_domain:
+          type: string
+        note:
+          type: string
+        company_id:
+          type: integer
+          
+    Email_DomainSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Email_DomainSchema'
+          
+
+    Token_StoreSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: string
+              token_name:
+                type: string
+              token_note:
+                type: string
+              roles:
+                type: string
+              resource_permissions:
+                type: string
+              enabled:
+                type: boolean
+              filter_conditions:
+                type: string
+              company_id:
+                type: integer
+          
+    Token_StoreCreateSchema:
+      type: object
+      properties:
+        token_name:
+          type: string
+        token_note:
+          type: string
+        roles:
+          type: string
+        resource_permissions:
+          type: string
+        enabled:
+          type: boolean
+        filter_conditions:
+          type: string
+        company_id:
+          type: integer
+                
+    Token_StoreSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Token_StoreSchema'
+          
+    Notification_GroupSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: string
+              notification_group_name:
+                type: string
+              notification_group_note:
+                type: string
+              notification_group_expiry:
+                type: string
+              default_notification_group_email:
+                type: string
+              default_notification_group_schedule:
+                type: string
+              default_notification_group_delivery_id:
+                type: string
+              default_notification_group_per_item:
+                type: boolean
+              company_id:
+                type: integer
+    
+    Notification_GroupCreateSchema:
+      type: object
+      properties:
+        notification_group_name:
+          type: string
+        notification_group_note:
+          type: string
+        notification_group_expiry:
+          type: string
+        default_notification_group_email:
+          type: string
+        default_notification_group_schedule:
+          type: string
+        default_notification_group_delivery_id:
+          type: string
+        default_notification_group_per_item:
+          type: boolean
+        company_id:
+          type: integer
+          
+    Notification_GroupSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Notification_GroupSchema'
+          
+    Notification_FilterSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: string
+              filter_name:
+                type: string
+              filter_note:
+                type: string
+              filter:
+                type: string
+              filter_permissions:
+                type: string
+              owner_id:
+                type: integer
+              notification_email:
+                type: string
+              notification_schedule:
+                type: string
+              notification_per_item:
+                type: boolean
+              enabled:
+                type: boolean
+              suppression:
+                type: string
+              notification_group_id:
+                type: integer
+              notification_delivery_id:
+                type: integer 
+                
+    Notification_FilterCreateSchema:
+      type: object
+      properties:
+        filter_name:
+          type: string
+        filter_note:
+          type: string
+        filter:
+          type: string
+        filter_permissions:
+          type: string
+        owner_id:
+          type: integer
+        notification_email:
+          type: string
+        notification_schedule:
+          type: string
+        notification_per_item:
+          type: boolean
+        enabled:
+          type: boolean
+        suppression:
+          type: string
+        notification_group_id:
+          type: integer
+        notification_delivery_id:
+          type: integer      
+          
+    Notification_FilterSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Notification_FilterSchema'
+          
+    Notification_DeliverySchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              notification_delivery_roles:
+                type: string
+              notification_delivery_note:
+                type: string
+              notification_delivery_expiry:
+                type: string
+              notification_delivery_type:
+                type: string  
+              email_to:
+                type: string 
+              channel:
+                type: string
+              webhook:
+                type: string 
+              project:
+                type: string
+              issueType:
+                type: string 
+              enabled:
+                type: boolean
+              permissions:
+                type: string 
+              owner_id:
+                type: integer 
+              company_id:
+                type: integer 
+                
+    Notification_DeliveryCreateSchema:
+      type: object
+      properties:
+        notification_delivery_roles:
+          type: string
+        notification_delivery_note:
+          type: string
+        notification_delivery_expiry:
+          type: string
+        notification_delivery_type:
+          type: string  
+        email_to:
+          type: string 
+        channel:
+          type: string
+        webhook:
+          type: string 
+        project:
+          type: string
+        issueType:
+          type: string 
+        enabled:
+          type: boolean
+        permissions:
+          type: string 
+        owner_id:
+          type: integer 
+        company_id:
+          type: integer 
+          
+    Notification_DeliverySchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Notification_DeliverySchema'
+          
+          
+    ProcessedSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              company_id:
+                type: integer
+              cve_id:
+                type: string
+              date_added:
+                type: string
+          
+    ProcessedCreateSchema:
+      type: object
+      properties:
+        company_id:
+          type: integer
+        cve_id:
+          type: string
+        date_added:
+          type: string
+                
+    ProcessedSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/ProcessedSchema'
+          
+    NotificationSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              latest_id_ref:
+                type: integer
+              previous_id_ref:
+                type: integer
+              current_number_enabled_cves:
+                type: integer
+              cves_not_enabled:
+                type: integer 
+              trace_data:
+                type: string 
+              note:
+                type: string 
+                
+    NotificationCreateSchema:
+      type: object
+      properties:
+        latest_id_ref:
+          type: integer
+        previous_id_ref:
+          type: integer
+        current_number_enabled_cves:
+          type: integer
+        cves_not_enabled:
+          type: integer 
+        trace_data:
+          type: string 
+        note:
+          type: string 
+
+    NotificationSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/NotificationSchema'          
+
+    Deal_RegistrationSchema:
+      type: object
+      properties:
+        data:
+            type: object
+            properties:
+              id:
+                type: integer
+              opportunity_name:
+                type: string
+              client_name:
+                type: string
+              company_name:
+                type: string
+              company_contact_no:
+                type: string 
+              company_contact_email:
+                type: string
+              company_contact_address:
+                type: string
+              company_contact_country:
+                type: string
+              company_contact_state:
+                type: string
+              timezone:
+                type: string 
+              company_contact_postcode:
+                type: string
+              estimated_deal_value:
+                type: string
+              description:
+                type: string
+              registration_status:
+                type: string
+              estimated_close_date:
+                type: string 
+              lead_source:
+                type: string
+              Created:
+                type: string
+              deal_approved_to:
+                type: string 
+              deal_approved_by_name:
+                type: string 
+              partner_sales_rep_id:
+                type: integer
+              internal_note:
+                type: string
+              company_id:
+                type: integer 
+
+    Deal_RegistrationCreateSchema:
+      type: object
+      properties:
+        opportunity_name:
+          type: string
+        client_name:
+          type: string
+        company_name:
+          type: string
+        company_contact_no:
+          type: string 
+        company_contact_email:
+          type: string
+        company_contact_address:
+          type: string
+        company_contact_country:
+          type: string
+        company_contact_state:
+          type: string
+        timezone:
+          type: string 
+        company_contact_postcode:
+          type: string
+        estimated_deal_value:
+          type: string
+        description:
+          type: string
+        registration_status:
+          type: string
+        estimated_close_date:
+          type: string 
+        lead_source:
+          type: string
+        Created:
+          type: string
+        deal_approved_to:
+          type: string 
+        deal_approved_by_name:
+          type: string 
+        partner_sales_rep_id:
+          type: integer
+        internal_note:
+          type: string
+        company_id:
+          type: integer 
+                
+    Deal_RegistrationSchemaResponse:
+      allOf:
+      - $ref: '#/components/schemas/StandardSuccessfulResponse'
+      - $ref: '#/components/schemas/Deal_RegistrationSchema' 
+          
+  
