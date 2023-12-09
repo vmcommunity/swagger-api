@@ -19,11 +19,11 @@
   },
   "servers": [
     {
-      "url": "https://portal.ctci.ai",
+      "url": "https://api.ctci.ai",
       "description": "Production"
     },
     {
-      "url": "https://test-portal.ctci.ai",
+      "url": "https://test-api.ctci.ai",
       "description": "Test"
     }
   ],
